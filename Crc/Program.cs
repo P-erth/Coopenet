@@ -289,6 +289,7 @@ namespace Crc
                 if(domiReal == postal)
                 {
                     gfx.DrawString(domiReal, fontCourierBold13, XBrushes.Black, 25, posy += 10);
+                    posy += 10;
                 }
                 else
                 {
@@ -360,7 +361,7 @@ namespace Crc
 
         private static void DrawQR(XGraphics gfx, string qr1, string qr2)
         {
-            XImage img = XImage.FromFile("template2.jpg");
+            XImage img = XImage.FromFile("template.jpg");
             gfx.DrawImage(img, 0, 0);
 
             //Draw QR1
