@@ -84,7 +84,8 @@ namespace Crc
                 String proxVto = diaVto + "/" + mesVto + "/" + añoVto;
                 String lspParte1 = textToParse.Substring(pivote += 4, 1);
                 String lspParte2 = textToParse.Substring(pivote += 1, 4);
-                String lsp = lspParte1 + "-" + lspParte2 + "-" + textToParse.Substring(pivote += 4, 8);
+                String lspParte3 = textToParse.Substring(pivote += 4, 8);
+                String lsp = lspParte1 + "-" + lspParte2 + "-" + lspParte3;
                 String codCom = textToParse.Substring(pivote += 8, 2);
                 String cesp = textToParse.Substring(pivote += 2, 14);
                 String cespEmis = textToParse.Substring(pivote += 14, 2) + "/" + textToParse.Substring(pivote += 2, 2) + "/" + textToParse.Substring(pivote += 2, 4);
@@ -122,7 +123,8 @@ namespace Crc
                 // y guardo todo el importe entero
                 String cod1 = textToParse.Substring(pivote += 2, 28);
                 //
-                String lsp2 = lspParte1 + "-" + lspParte2 + "-" + textToParse.Substring(pivote += 28, 8);
+                String lsp2Parte3 = textToParse.Substring(pivote += 28, 8);
+                String lsp2 = lspParte1 + "-" + lspParte2 + "-" + lsp2Parte3;
                 List<string> cuerposTabla2 = new List<string>();
                 cuerposTabla2.Add(textToParse.Substring(pivote += 8, 85));
                 for (int i = 0; i < 24; i++) cuerposTabla2.Add(textToParse.Substring(pivote += 85, 85));//Tabla cuerpos hoja 2
@@ -180,9 +182,10 @@ namespace Crc
                 qr2 += "6304"; //digitos de mierda de verificacion de Yacaré
                 String crc2 = CalculaCRC(qr1, Encoding.UTF8);
                 qr2 += crc2;
+                int posy;
                 //////////////////////////////////////////////////////////
-                DrawQR(gfx, qr1, qr2);
-                DrawBarCode(gfx, cod1, cod2);
+                DrawQR(gfx, qr1, qr2,lspParte3,lsp2Parte3);
+                DrawBarCode(gfx, cod1, cod2,lspParte3, lsp2Parte3);
                 // Declaracion de fuentes
                 XFont fontCourierBold15 = new XFont("Courier New", 15, XFontStyle.Bold);
                 XFont fontCourierBold14 = new XFont("Courier New", 14, XFontStyle.Bold);
@@ -192,153 +195,164 @@ namespace Crc
                 XFont fontCourier6 = new XFont("Courier New", 6, XFontStyle.Regular);
                 XFont fontCourierBold10 = new XFont("Courier New", 10, XFontStyle.Bold);
                 XFont fontCourierBold9 = new XFont("Courier New", 9, XFontStyle.Bold);
+                XFont fontCourierBold6 = new XFont("Courier New", 6, XFontStyle.Bold);
                 ///////////////////////////HOJA1//////////////////////////
-
-                gfx.DrawString("NIS:  " + (long.Parse(nis)).ToString(), fontCourierBold15, XBrushes.Black, 410, 90);
-                gfx.DrawString(nombre, fontCourierBold14, XBrushes.Black, 25, 92);
-                if (domiReal == postal)
+                if (lspParte3 != "00000000")
                 {
-                    gfx.DrawString(domiReal, fontCourierBold14, XBrushes.Black, 25, 105);
-                }
-                else
-                {
-                    gfx.DrawString(domiReal, fontCourierBold14, XBrushes.Black, 25, 105);
-                    gfx.DrawString(postal, fontCourierBold14, XBrushes.Black, 25, 118);
-                }
-                gfx.DrawString(localidad, fontCourierBold14, XBrushes.Black, 25, 131);
-                gfx.DrawString("Cond.Iva:" + condiva, fontCourierBold7, XBrushes.Black, 25, 142);
-                gfx.DrawString("CUIT: " + cuit, fontCourierBold7, XBrushes.Black, 155, 142);
-                gfx.DrawString("*" + cod1 + "*", fontCourier6, XBrushes.Black, 70, 168);
-                //
+                    gfx.DrawString("NIS:  " + (long.Parse(nis)).ToString(), fontCourierBold15, XBrushes.Black, 410, 90);
+                    gfx.DrawString(nombre, fontCourierBold14, XBrushes.Black, 25, 92);
+                    if (domiReal == postal)
+                    {
+                        gfx.DrawString(domiReal, fontCourierBold14, XBrushes.Black, 25, 105);
+                    }
+                    else
+                    {
+                        gfx.DrawString(domiReal, fontCourierBold14, XBrushes.Black, 25, 105);
+                        gfx.DrawString(postal, fontCourierBold14, XBrushes.Black, 25, 118);
+                    }
+                    gfx.DrawString(localidad, fontCourierBold14, XBrushes.Black, 25, 131);
+                    gfx.DrawString("Cond.Iva:" + condiva, fontCourierBold7, XBrushes.Black, 25, 142);
+                    if (cuit != "00000000000")
+                    {
+                        gfx.DrawString("CUIT: " + cuit, fontCourierBold7, XBrushes.Black, 155, 142);
+                    }
+                    gfx.DrawString("*" + cod1 + "*", fontCourier6, XBrushes.Black, 70, 168);
+                    //
 
-                int posy = 142;
-                if ((cbu == "0000000000000000000000") || (cbu == "                      ") || (cbu.Trim() == ""))
-                {
-                    gfx.DrawString("CODIGO DE PAGO ELECTRONICO: " + nis, fontCourierBold10, XBrushes.Black, 305, 150);
-                }
-                else
-                {
-                    gfx.DrawString("El importe de esta factura sera debitado a su vencimiento de acuerdo al CBU", fontCourierBold7, XBrushes.Black, 245, posy);
-                    gfx.DrawString("número: " + cbu + " por lo tanto recomendamos verificar para tal", fontCourierBold7, XBrushes.Black, 245, posy += 7);
-                    gfx.DrawString("fecha tener el saldo disponible en su cuenta bancaria", fontCourierBold7, XBrushes.Black, 245, posy += 7);
-                }
-                if (lspSocial == "1") gfx.DrawString("**TARIFA SOCIAL**", fontCourierBold9, XBrushes.Black, 355, 165);
+                    posy = 142;
+                    if ((cbu == "0000000000000000000000") || (cbu == "                      ") || (cbu.Trim() == ""))
+                    {
+                        gfx.DrawString("CODIGO DE PAGO ELECTRONICO: " + nis, fontCourierBold10, XBrushes.Black, 305, 150);
+                    }
+                    else
+                    {
+                        gfx.DrawString("El importe de esta factura sera debitado a su vencimiento de acuerdo al CBU", fontCourierBold7, XBrushes.Black, 245, posy);
+                        gfx.DrawString("número: " + cbu + " por lo tanto recomendamos verificar para tal", fontCourierBold7, XBrushes.Black, 245, posy += 7);
+                        gfx.DrawString("fecha tener el saldo disponible en su cuenta bancaria", fontCourierBold7, XBrushes.Black, 245, posy += 7);
+                    }
+                    if (lspSocial == "1") gfx.DrawString("**TARIFA SOCIAL**", fontCourierBold9, XBrushes.Black, 355, 165);
 
-                posy = 185;
-                //cuerpo
-                foreach (string cuerpo in cuerpos) gfx.DrawString(cuerpo, fontCourier7, XBrushes.Black, 243, posy += 7);
-                posy = 183;
-                //deudas
-                foreach (string deuda in deudas) gfx.DrawString(deuda, fontCourier6, XBrushes.Black, 35, posy += 7);
-                posy = 255;
-                //estadisticos
-                foreach (string estadistico in estadisticos) gfx.DrawString(estadistico, fontCourier6, XBrushes.Black, 43, posy += 7);
-                gfx.DrawString("Promedio : " + promedio, fontCourier6, XBrushes.Black, 105, posy += 7);
-                //recargos
-                posy = 326;
-                foreach (string recargo in recargos) gfx.DrawString(recargo, fontCourier6, XBrushes.Black, 30, posy += 7);
-                posy = 404;
-                //informaciones al pie se la hoja 1
-                foreach (string info in informaciones) gfx.DrawString(info, fontCourierBold7, XBrushes.Black, 30, posy += 7);
-                gfx.DrawString("Numeración enitida como gran contribuyente el " + cuFecha + " a las " + cuHora, fontCourierBold7, XBrushes.Black, 34, posy += 7);
-                //importa a pagar y vencimiento
-                gfx.DrawString(proxVto, fontCourierBold14, XBrushes.Black, 382, 451);
-                gfx.DrawString(totImporte, fontCourierBold14, XBrushes.Black, 495, 451);
+                    posy = 185;
+                    //cuerpo
+                    foreach (string cuerpo in cuerpos) gfx.DrawString(cuerpo, fontCourierBold7, XBrushes.Black, 243, posy += 7);
+                    posy = 183;
+                    //deudas
+                    foreach (string deuda in deudas) gfx.DrawString(deuda, fontCourierBold6, XBrushes.Black, 35, posy += 7);
+                    posy = 276;
+                    //estadisticos
+                    foreach (string estadistico in estadisticos) gfx.DrawString(estadistico, fontCourierBold6, XBrushes.Black, 43, posy += 7);
+                    gfx.DrawString("Promedio : " + promedio, fontCourier6, XBrushes.Black, 105, posy += 7);
+                    //recargos
+                    posy = 350;
+                    foreach (string recargo in recargos) gfx.DrawString(recargo, fontCourierBold6, XBrushes.Black, 30, posy += 7);
+                    posy = 404;
+                    //informaciones al pie se la hoja 1
+                    foreach (string info in informaciones) gfx.DrawString(info, fontCourierBold7, XBrushes.Black, 30, posy += 7);
+                    gfx.DrawString("Numeración enitida como gran contribuyente el " + cuFecha + " a las " + cuHora, fontCourierBold7, XBrushes.Black, 34, posy += 7);
+                    //importa a pagar y vencimiento
+                    gfx.DrawString(proxVto, fontCourierBold14, XBrushes.Black, 382, 451);
+                    gfx.DrawString(totImporte, fontCourierBold14, XBrushes.Black, 495, 451);
 
-                posy = 22;
-                gfx.DrawString("Liq. Serv. Públicos", fontCourierBold7, XBrushes.Black, 400, posy);
-                gfx.DrawString(lsp, fontCourierBold7, XBrushes.Black, 500, posy);
-                gfx.DrawString("Código Comprobante", fontCourierBold7, XBrushes.Black, 400, posy += 10);
-                gfx.DrawString(codCom, fontCourierBold7, XBrushes.Black, 555, posy);
-                gfx.DrawString("C.E.S.P. Número", fontCourierBold7, XBrushes.Black, 400, posy += 10);
-                gfx.DrawString(cesp, fontCourierBold7, XBrushes.Black, 505, posy);
-                gfx.DrawString("Vencimiento CESP", fontCourierBold7, XBrushes.Black, 400, posy += 10);
-                gfx.DrawString(cespVto, fontCourierBold7, XBrushes.Black, 522, posy);
-                gfx.DrawString("Control de pago", fontCourierBold7, XBrushes.Black, 400, posy += 10);
-                gfx.DrawString(totControl, fontCourierBold7, XBrushes.Black, 530, posy);
-                gfx.DrawString("Fecha emisión", fontCourierBold7, XBrushes.Black, 400, posy += 10);
-                gfx.DrawString(cespEmis, fontCourierBold7, XBrushes.Black, 522, posy);
-                posy = 102;
-                gfx.DrawString("Medidor Nro.", fontCourierBold7, XBrushes.Black, 275, posy);
-                gfx.DrawString(lspMedidor, fontCourierBold7, XBrushes.Black, 352, posy);
-                gfx.DrawString("Estado Anter.", fontCourierBold7, XBrushes.Black, 400, posy);
-                gfx.DrawString((long.Parse(lspEstadoAnt)).ToString(), fontCourierBold7, XBrushes.Black, 470, posy);
-                gfx.DrawString(lspEstadoAnFec, fontCourierBold7, XBrushes.Black, 505, posy);
-                gfx.DrawString("Socio", fontCourierBold7, XBrushes.Black, 275, posy += 7);
-                gfx.DrawString(socio, fontCourierBold7, XBrushes.Black, 360, posy);
-                gfx.DrawString("Estado Actual", fontCourierBold7, XBrushes.Black, 400, posy);
-                gfx.DrawString((long.Parse(lspEstadoAc)).ToString(), fontCourierBold7, XBrushes.Black, 470, posy);
-                gfx.DrawString(lspEstadoAcFec, fontCourierBold7, XBrushes.Black, 505, posy);
-                gfx.DrawString("Tarifa", fontCourierBold7, XBrushes.Black, 275, posy += 7);
-                gfx.DrawString("Factor", fontCourierBold7, XBrushes.Black, 400, posy);
-                gfx.DrawString((long.Parse(lspFactor)).ToString(), fontCourierBold7, XBrushes.Black, 480, posy);
-                gfx.DrawString(lspTarifa, fontCourierBold7, XBrushes.Black, 368, posy);
-                gfx.DrawString("Consumo", fontCourierBold7, XBrushes.Black, 400, posy += 7);
-                gfx.DrawString((long.Parse(lspConsumo)).ToString(), fontCourierBold7, XBrushes.Black, 470, posy);
-                gfx.DrawString("Pxmo. vto. desde", fontCourierBold7, XBrushes.Black, 275, posy += 7);
-                gfx.DrawString(proxVto, fontCourierBold7, XBrushes.Black, 356, posy);
-                gfx.DrawString("Secuencia", fontCourierBold7, XBrushes.Black, 400, posy);
-                gfx.DrawString(lspSecuencia, fontCourierBold7, XBrushes.Black, 456, posy);
+                    posy = 22;
+                    gfx.DrawString("Liq. Serv. Públicos", fontCourierBold7, XBrushes.Black, 400, posy);
+                    gfx.DrawString(lsp, fontCourierBold7, XBrushes.Black, 500, posy);
+                    gfx.DrawString("Código Comprobante", fontCourierBold7, XBrushes.Black, 400, posy += 10);
+                    gfx.DrawString(codCom, fontCourierBold7, XBrushes.Black, 555, posy);
+                    gfx.DrawString("C.E.S.P. Número", fontCourierBold7, XBrushes.Black, 400, posy += 10);
+                    gfx.DrawString(cesp, fontCourierBold7, XBrushes.Black, 505, posy);
+                    gfx.DrawString("Vencimiento CESP", fontCourierBold7, XBrushes.Black, 400, posy += 10);
+                    gfx.DrawString(cespVto, fontCourierBold7, XBrushes.Black, 522, posy);
+                    gfx.DrawString("Control de pago", fontCourierBold7, XBrushes.Black, 400, posy += 10);
+                    gfx.DrawString(totControl, fontCourierBold7, XBrushes.Black, 530, posy);
+                    gfx.DrawString("Fecha emisión", fontCourierBold7, XBrushes.Black, 400, posy += 10);
+                    gfx.DrawString(cespEmis, fontCourierBold7, XBrushes.Black, 522, posy);
+                    posy = 102;
+                    gfx.DrawString("Medidor Nro.", fontCourierBold7, XBrushes.Black, 275, posy);
+                    gfx.DrawString(lspMedidor, fontCourierBold7, XBrushes.Black, 352, posy);
+                    gfx.DrawString("Estado Anter.", fontCourierBold7, XBrushes.Black, 400, posy);
+                    gfx.DrawString((long.Parse(lspEstadoAnt)).ToString(), fontCourierBold7, XBrushes.Black, 470, posy);
+                    gfx.DrawString(lspEstadoAnFec, fontCourierBold7, XBrushes.Black, 505, posy);
+                    gfx.DrawString("Socio", fontCourierBold7, XBrushes.Black, 275, posy += 7);
+                    gfx.DrawString(socio, fontCourierBold7, XBrushes.Black, 360, posy);
+                    gfx.DrawString("Estado Actual", fontCourierBold7, XBrushes.Black, 400, posy);
+                    gfx.DrawString((long.Parse(lspEstadoAc)).ToString(), fontCourierBold7, XBrushes.Black, 470, posy);
+                    gfx.DrawString(lspEstadoAcFec, fontCourierBold7, XBrushes.Black, 505, posy);
+                    gfx.DrawString("Tarifa", fontCourierBold7, XBrushes.Black, 275, posy += 7);
+                    gfx.DrawString("Factor", fontCourierBold7, XBrushes.Black, 400, posy);
+                    gfx.DrawString((long.Parse(lspFactor)).ToString(), fontCourierBold7, XBrushes.Black, 480, posy);
+                    gfx.DrawString(lspTarifa, fontCourierBold7, XBrushes.Black, 368, posy);
+                    gfx.DrawString("Consumo", fontCourierBold7, XBrushes.Black, 400, posy += 7);
+                    gfx.DrawString((long.Parse(lspConsumo)).ToString(), fontCourierBold7, XBrushes.Black, 470, posy);
+                    gfx.DrawString("Pxmo. vto. desde", fontCourierBold7, XBrushes.Black, 275, posy += 7);
+                    gfx.DrawString(proxVto, fontCourierBold7, XBrushes.Black, 356, posy);
+                    gfx.DrawString("Secuencia", fontCourierBold7, XBrushes.Black, 400, posy);
+                    gfx.DrawString(lspSecuencia, fontCourierBold7, XBrushes.Black, 456, posy);
+                }
                 ////////////////////////FINHOJA1////////////////////////////////////////////
                 /////////////////////////HOJA2 //////////////////////////////
-
-                gfx.DrawString("NIS:  " + (long.Parse(nis)).ToString(), fontCourierBold15, XBrushes.Black, 410, 548);
-                posy = 536;
-
-                gfx.DrawString(nombre, fontCourierBold13, XBrushes.Black, 25, posy);
-                if(domiReal == postal)
+                if (lsp2Parte3 != "00000000")
                 {
-                    gfx.DrawString(domiReal, fontCourierBold13, XBrushes.Black, 25, posy += 10);
-                    posy += 10;
-                }
-                else
-                {
-                    gfx.DrawString(domiReal, fontCourierBold13, XBrushes.Black, 25, posy += 10);
-                    gfx.DrawString(postal, fontCourierBold13, XBrushes.Black, 25, posy += 10);
-                }
-                gfx.DrawString(localidad, fontCourierBold13, XBrushes.Black, 25, posy += 10);
-                gfx.DrawString("Cond.Iva:" + condiva, fontCourierBold7, XBrushes.Black, 25, posy += 7);
-                gfx.DrawString("CUIT: " + cuit, fontCourierBold7, XBrushes.Black, 155, posy);
-                gfx.DrawString("*" + cod2 + "*", fontCourier6, XBrushes.Black, 70, 599);
-                posy += 8;
-                if ((cbu == "0000000000000000000000") || (cbu == "                      ") || (cbu.Trim() == ""))
-                {
-                    gfx.DrawString("CODIGO DE PAGO ELECTRONICO: " + (long.Parse(nis)).ToString(), fontCourierBold10, XBrushes.Black, 305, posy);
-                }
-                else
-                {
-                    posy -= 7;
-                    gfx.DrawString("El importe de esta factura sera debitado a su vencimiento de acuerdo al CBU", fontCourierBold7, XBrushes.Black, 245, posy);
-                    gfx.DrawString("número: " + cbu + " por lo tanto recomendamos verificar para tal", fontCourierBold7, XBrushes.Black, 245, posy += 7);
-                    gfx.DrawString("fecha tener el saldo disponible en su cuenta bancaria", fontCourierBold7, XBrushes.Black, 245, posy += 7);
-                }
-                if (lspSocial == "1") gfx.DrawString("**TARIFA SOCIAL**", fontCourierBold9, XBrushes.Black, 355, posy += 16);
-                posy = 470;
-                gfx.DrawString("Liq. Serv. Públicos", fontCourierBold7, XBrushes.Black, 400, posy);
-                gfx.DrawString(lsp2, fontCourierBold7, XBrushes.Black, 500, posy);
-                gfx.DrawString("Código Comprobante", fontCourierBold7, XBrushes.Black, 400, posy += 10);
-                gfx.DrawString(codCom, fontCourierBold7, XBrushes.Black, 555, posy);
-                gfx.DrawString("C.E.S.P. Número", fontCourierBold7, XBrushes.Black, 400, posy += 10);
-                gfx.DrawString(cesp, fontCourierBold7, XBrushes.Black, 505, posy);
-                gfx.DrawString("Vencimiento CESP", fontCourierBold7, XBrushes.Black, 400, posy += 10);
-                gfx.DrawString(cespVto, fontCourierBold7, XBrushes.Black, 522, posy);
-                gfx.DrawString("Fecha emisión", fontCourierBold7, XBrushes.Black, 400, posy += 10);
-                gfx.DrawString(cespEmis, fontCourierBold7, XBrushes.Black, 522, posy);
-                gfx.DrawString("Control de pago", fontCourierBold7, XBrushes.Black, 400, posy += 10);
-                gfx.DrawString(totControl2, fontCourierBold7, XBrushes.Black, 530, posy);
-                gfx.DrawString("Socio", fontCourierBold7, XBrushes.Black, 400, posy += 10);
-                gfx.DrawString(socio, fontCourierBold7, XBrushes.Black, 530, posy);
-                posy = 612;
-                foreach(string recargo in recargosTabla2) gfx.DrawString(recargo, fontCourier6, XBrushes.Black, 30, posy+=6);
-                posy = 692;
-                foreach(string sepelio in sepelios) gfx.DrawString(sepelio, fontCourier6, XBrushes.Black, 30, posy+=6);
 
-                gfx.DrawString(proxVto, fontCourierBold14, XBrushes.Black, 382, 824);
-                gfx.DrawString(totImporte2, fontCourierBold14, XBrushes.Black, 504, 824);
-                gfx.DrawString("Numeración enitida como gran contribuyente el " + cuFecha + " a las " + cuHora, fontCourierBold7, XBrushes.Black, 34, 827);
-                posy = 612;
-                foreach (string cuerpo in cuerposTabla2) gfx.DrawString(cuerpo, fontCourier7, XBrushes.Black, 242, posy += 6);
+                    gfx.DrawString("NIS:  " + (long.Parse(nis)).ToString(), fontCourierBold15, XBrushes.Black, 410, 548);
+                    posy = 536;
 
+                    gfx.DrawString(nombre, fontCourierBold13, XBrushes.Black, 25, posy);
+                    if (domiReal == postal)
+                    {
+                        gfx.DrawString(domiReal, fontCourierBold13, XBrushes.Black, 25, posy += 10);
+                        posy += 10;
+                    }
+                    else
+                    {
+                        gfx.DrawString(domiReal, fontCourierBold13, XBrushes.Black, 25, posy += 10);
+                        gfx.DrawString(postal, fontCourierBold13, XBrushes.Black, 25, posy += 10);
+                    }
+                    gfx.DrawString(localidad, fontCourierBold13, XBrushes.Black, 25, posy += 10);
+                    gfx.DrawString("Cond.Iva:" + condiva, fontCourierBold7, XBrushes.Black, 25, 573);
+                    if (cuit != "00000000000")
+                    {
+                        gfx.DrawString("CUIT: " + cuit, fontCourierBold7, XBrushes.Black, 155, 573);
+                    }
+                    gfx.DrawString("*" + cod2 + "*", fontCourier6, XBrushes.Black, 70, 599);
+                    posy += 8;
+                    if ((cbu == "0000000000000000000000") || (cbu == "                      ") || (cbu.Trim() == ""))
+                    {
+                        gfx.DrawString("CODIGO DE PAGO ELECTRONICO: " + nis, fontCourierBold10, XBrushes.Black, 305, posy);
+                    }
+                    else
+                    {
+                        posy -= 7;
+                        gfx.DrawString("El importe de esta factura sera debitado a su vencimiento de acuerdo al CBU", fontCourierBold7, XBrushes.Black, 245, posy);
+                        gfx.DrawString("número: " + cbu + " por lo tanto recomendamos verificar para tal", fontCourierBold7, XBrushes.Black, 245, posy += 7);
+                        gfx.DrawString("fecha tener el saldo disponible en su cuenta bancaria", fontCourierBold7, XBrushes.Black, 245, posy += 7);
+                    }
+                    if (lspSocial == "1") gfx.DrawString("**TARIFA SOCIAL**", fontCourierBold9, XBrushes.Black, 355, posy += 16);
+                    posy = 470;
+                    gfx.DrawString("Liq. Serv. Públicos", fontCourierBold7, XBrushes.Black, 400, posy);
+                    gfx.DrawString(lsp2, fontCourierBold7, XBrushes.Black, 500, posy);
+                    gfx.DrawString("Código Comprobante", fontCourierBold7, XBrushes.Black, 400, posy += 10);
+                    gfx.DrawString(codCom, fontCourierBold7, XBrushes.Black, 555, posy);
+                    gfx.DrawString("C.E.S.P. Número", fontCourierBold7, XBrushes.Black, 400, posy += 10);
+                    gfx.DrawString(cesp, fontCourierBold7, XBrushes.Black, 505, posy);
+                    gfx.DrawString("Vencimiento CESP", fontCourierBold7, XBrushes.Black, 400, posy += 10);
+                    gfx.DrawString(cespVto, fontCourierBold7, XBrushes.Black, 522, posy);
+                    gfx.DrawString("Fecha emisión", fontCourierBold7, XBrushes.Black, 400, posy += 10);
+                    gfx.DrawString(cespEmis, fontCourierBold7, XBrushes.Black, 522, posy);
+                    gfx.DrawString("Control de pago", fontCourierBold7, XBrushes.Black, 400, posy += 10);
+                    gfx.DrawString(totControl2, fontCourierBold7, XBrushes.Black, 530, posy);
+                    gfx.DrawString("Socio", fontCourierBold7, XBrushes.Black, 400, posy += 10);
+                    gfx.DrawString(socio, fontCourierBold7, XBrushes.Black, 530, posy);
+                    posy = 612;
+                    foreach (string recargo in recargosTabla2) gfx.DrawString(recargo, fontCourierBold6, XBrushes.Black, 30, posy += 6);
+                    posy = 692;
+                    foreach (string sepelio in sepelios) gfx.DrawString(sepelio, fontCourierBold6, XBrushes.Black, 30, posy += 6);
+
+                    gfx.DrawString(proxVto, fontCourierBold14, XBrushes.Black, 382, 824);
+                    gfx.DrawString(totImporte2, fontCourierBold14, XBrushes.Black, 504, 824);
+                    gfx.DrawString("Numeración enitida como gran contribuyente el " + cuFecha + " a las " + cuHora, fontCourierBold7, XBrushes.Black, 34, 827);
+                    posy = 612;
+                    foreach (string cuerpo in cuerposTabla2) gfx.DrawString(cuerpo, fontCourierBold7, XBrushes.Black, 242, posy += 6);
+                }
                 ////////////////////FINHOJA2////////////////////
 
 
@@ -359,7 +373,7 @@ namespace Crc
             Console.ReadLine();
         }
 
-        private static void DrawQR(XGraphics gfx, string qr1, string qr2)
+        private static void DrawQR(XGraphics gfx, string qr1, string qr2,string lspParte3, string lsp2Parte3)
         {
             XImage img = XImage.FromFile("template.jpg");
             gfx.DrawImage(img, 0, 0);
@@ -378,15 +392,15 @@ namespace Crc
             Bitmap bm = bcWriter.Write(qr1);
             XImage img2 = XImage.FromGdiPlusImage((Image)bm);
             img2.Interpolate = false;
-            gfx.DrawImage(img2, 495, 335);
+            if (lspParte3 != "00000000") gfx.DrawImage(img2, 495, 335);
             //Draw QR2
             bm = bcWriter.Write(qr2);
             img2 = XImage.FromGdiPlusImage((Image)bm);
             img2.Interpolate = false;
-            gfx.DrawImage(img2, 495, 710);
+            if (lsp2Parte3 != "00000000") gfx.DrawImage(img2, 495, 710);
         }
 
-        private static void DrawBarCode(XGraphics gfx, string code1, string code2)
+        private static void DrawBarCode(XGraphics gfx, string code1, string code2,string lspParte3, string lsp2Parte3)
         {
             var bcWriter = new BarcodeWriter
             {
@@ -403,12 +417,12 @@ namespace Crc
             Bitmap bm = bcWriter.Write(code1);
             XImage img = XImage.FromGdiPlusImage((Image)bm);
             img.Interpolate = false;
-            gfx.DrawImage(img, 30, 147);
+            if(lspParte3 != "00000000")gfx.DrawImage(img, 30, 147);
             //Drawing BarCode2
             bm = bcWriter.Write(code2);
             img = XImage.FromGdiPlusImage((Image)bm);
             img.Interpolate = false;
-            gfx.DrawImage(img, 30, 578);
+            if (lsp2Parte3 != "00000000") gfx.DrawImage(img, 30, 578);
         }
 
         static String CalculaCRC(String value, Encoding enc)
